@@ -24,20 +24,6 @@ class telegram
     {
         $this->db = null;
     }
-    public function runQuery()
-    {
-        $this->queryResult = $this->db->query($this->query);
-    }
-    public function getMe()
-    {
-        $url = 'https://api.telegram.org/bot' . $this->token . '/getMe';
-        return file_get_contents($url);
-    }
-    public function getUpdates()
-    {
-        $url = 'https://api.telegram.org/bot' . $this->token . '/getUpdates';
-        return file_get_contents($url);
-    }
     // get users msg + info
     public function getTxt()
     {
@@ -62,16 +48,7 @@ class telegram
         );
         $this->executeCURL($url, $postfields);
     }
-    public function sendVideo($userid, $videoid, $caption)
-    {
-        $url = 'https://api.telegram.org/bot' . $this->token . '/sendVideo';
-        $postfields = array(
-            'chat_id' => $userid,
-            'caption' => $caption,
-            'video' => $videoid
-        );
-        $this->executeCURL($url, $postfields);
-    }
+
     public function sendHTML($userid, $text, $options)
     {
         $url = 'https://api.telegram.org/bot' . $this->token . '/sendMessage';
@@ -94,63 +71,7 @@ class telegram
         );
         return $keyboard = json_encode($keyboard);
     }
-    public function sendPhoto($userid, $photo, $caption, $options)
-    {
-        $url = 'https://api.telegram.org/bot' . $this->token . '/sendPhoto';
-        $keyboard = $this->makeMenu($options);
-        $postfields = array(
-            'chat_id' => $userid,
-            'photo' => new CURLFile($photo),
-            'caption' => $caption,
-            'reply_markup' => $keyboard
-        );
-        $this->executeCURL($url, $postfields);
-    }
-    public function sendAction($userid, $action)
-    {
-        $url = 'https://api.telegram.org/bot' . $this->token . '/sendChatAction';
-        $postfields = array(
-            'chat_id' => $userid,
-            'action' => $action
-        );
-        $this->executeCURL($url, $postfields);
-    }
-    public function randomImage()
-    {
-        $imagesDir = 'images/';
-        $images = glob($imagesDir . '*.{jpg,jpeg,png,gif}', GLOB_BRACE);
-        $randomImage = $images[array_rand($images)];
-        return $randomImage;
-    }
-    public function FileURL($fileid)
-    {
-        $filePath = $this->exeCURL('getFile', [
-            'file_id' => $fileid
-        ]);
-        $filepath = $filePath->result->file_path;
-        return $fileurl = 'https://api.telegram.org/file/bot' . TOKEN . '/' . $filepath;
-    }
-    public function FilePath($fileid)
-    {
-        $get = $this->exeCURL('getFile', [
-            'file_id' => $fileid
-        ]);
-        return $get;
-    }
-        /*public function sendDocument($userid,$fileid){
-    $url= 'https://api.telegram.org/bot'.$this->token.'/sendDocument?chat_id='.$userid.'&document='.$fileid;
-    return file_get_contents($url);
-    }*/
-    public function sendDocument($userid, $file, $caption)
-    {
-        $url = 'https://api.telegram.org/bot' . $this->token . '/sendDocument';
-        $postfields = array(
-            'chat_id' => $userid,
-            'document' => new CURLFile($file),
-            'caption' => $caption
-        );
-        $this->executeCURL($url, $postfields);
-    }
+
     public function getChatMember($channel, $user_id)
     {
         $get = $this->exeCURL('getChatMember', [
@@ -160,32 +81,10 @@ class telegram
         $data = $get->result->status;
         return $data;
     }
-    public function kickChatMember($chatid, $userid)
-    {
-        $url = 'https://api.telegram.org/bot' . $this->token . '/kickChatMember?chat_id=' . $chatid . '&user_id=' . $userid;
-        file_get_contents($url);
-    }
     public function deleteMessage($chatid, $msgid)
     {
         $url = 'https://api.telegram.org/bot' . $this->token . '/deleteMessage?chat_id=' . $chatid . '&message_id=' . $msgid;
         file_get_contents($url);
-    }
-    public function editMessageText($chatid, $msgid, $text)
-    {
-        $url = 'https://api.telegram.org/bot' . $this->token . '/editMessageText?chat_id=' . $chatid . '&message_id=' . $msgid . '&text=' . $text;
-        file_get_contents($url);
-    }
-    public function genRefCode($userid)
-    {
-        $date = time();
-        return mb_substr(md5($userid . $date), 0, 10);
-    }
-    public function checkStep($userid)
-    {
-        $sql = "select * from wsh_user where userid='$userid' and active=0";
-        $res = $this->db->query($sql);
-        $dbres = $res->fetch(PDO::FETCH_ASSOC);
-        return $dbres['step'];
     }
     public function executeCURL($url, $postfields)
     {
