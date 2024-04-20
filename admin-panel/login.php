@@ -1,21 +1,21 @@
-<?php include 'db.php'; 
+<?php include 'db.php';
 ob_start();
 session_start();?>
 
-<!DOCTYPE html>
-<html lang="fa">
+    <!DOCTYPE html>
+    <html lang="fa">
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="./style.css">
-    <title> ورود به پنل</title>
-    <link rel="icon" type="image/x-icon" href="src/img/favicon.png">
-    <meta name="theme-color" content="#229ED9" />
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="./style.css">
+        <title> ورود به پنل</title>
+        <link rel="icon" type="image/x-icon" href="src/img/favicon.png">
+        <meta name="theme-color" content="#229ED9" />
+    </head>
 
-<body dir="rtl" class="bg-img rounded-2xl h-screen flex flex-col justify-center items-center font-body">
+    <body dir="rtl" class="bg-img rounded-2xl h-screen flex flex-col justify-center items-center font-body">
 
 
     <div class="flex flex-col w-full max-w-md px-4 py-8 bg-white rounded-lg shadow dark:bg-gray-800 sm:px-6 md:px-8 lg:px-10">
@@ -51,35 +51,38 @@ session_start();?>
             </form>
         </div>
     </div>
-</body>
+    </body>
 
-</html>
+    </html>
 
 <?php
- function login_user($username, $password)
- {
-     global $db;
-     $sql = "select * from sp_admins where username='$username'";
-     $result = $db->query($sql)->fetch();
-     if ($result) {
-         $pwd = $result['password'];
-         $checkpass = password_verify($password, $pwd);
-         if ($checkpass === false) {
+function login_user($username, $password)
+{
+    global $db;
+    $sql = "SELECT * FROM sp_admins WHERE username = :username";
+    $stmt = $db->prepare($sql);
+    $stmt->bindParam(':username', $username);
+    $stmt->execute();
+    $result = $stmt->fetch();
+    if ($result) {
+        $pwd = $result['password'];
+        $checkpass = password_verify($password, $pwd);
+        if ($checkpass === false) {
             echo "<span class='bg-red-600 text-white text-xl p-2 m-2 rounded-lg'>رمز وارد شده اشتباه می باشد!</span>";
 
-         } elseif ($checkpass === true) {
-             $_SESSION['username'] = $username;
-             if($username == 'admin'){
+        } elseif ($checkpass === true) {
+            $_SESSION['username'] = $username;
+            if($username == 'admin'){
                 header('Location:admins.php');
-             }else{
+            }else{
                 header('Location:index.php');
-             }
-             exit();
-         }
-     } else {
-         echo "<span class='bg-red-600 text-white text-xl p-2 m-2 rounded-lg'>همچین یوزری پیدا نشد!</span>";
-     }
- }
+            }
+            exit();
+        }
+    } else {
+        echo "<span class='bg-red-600 text-white text-xl p-2 m-2 rounded-lg'>همچین یوزری پیدا نشد!</span>";
+    }
+}
 if (isset($_POST['login'])) {
     function validate($data)
     {
