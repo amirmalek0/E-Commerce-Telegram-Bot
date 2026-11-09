@@ -1,0 +1,19 @@
+def product_detail(update, context):
+    query = update.callback_query
+    query.answer()
+
+    pid = query.data.split("_")[1]
+    product = PRODUCTS[pid]
+
+    keyboard = [
+        [InlineKeyboardButton("🛒 خرید اشتراک", callback_data=f"buy_{pid}")],
+        [InlineKeyboardButton("⬅️ بازگشت", callback_data="back_products")]
+    ]
+
+    query.edit_message_text(
+        text=
+        f"🔐 {product['name']}\n\n"
+        f"💰 قیمت: {product['price']}\n"
+        f"📄 توضیحات: {product['desc']}",
+        reply_markup=InlineKeyboardMarkup(keyboard)
+    )
